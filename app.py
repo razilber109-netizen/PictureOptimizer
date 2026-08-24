@@ -6,7 +6,6 @@ import io
 import requests
 from streamlit_cropper import st_cropper
 from streamlit_lottie import st_lottie
-import hydralit_components as hc
 
 # 1. הגדרת הדף - חובה להיות ראשון
 st.set_page_config(page_title="PhotoFix", layout="wide", initial_sidebar_state="collapsed")
@@ -24,10 +23,10 @@ def load_lottieurl(url: str):
         return None
 
 
-# טעינת אנימציית הטעינה
+# טעינת אנימציית הטעינה של הבינה המלאכותית
 lottie_ai = load_lottieurl("https://lottie.host/81b10a27-eb63-4560-b636-6927a4216892/O6p6l1hXDe.json")
 
-# 3. עיצוב CSS מתקדם (שילוב עם ה-Navbar)
+# 3. עיצוב CSS מתקדם (סגנון פייסבוק + תפריט עליון בנוי אישית)
 st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Assistant:wght@400;600;700&display=swap');
@@ -67,31 +66,47 @@ st.markdown("""
         padding: 1.5rem !important;
         margin-bottom: 1rem;
     }
+
+    /* בניית תפריט עליון יציב ומהיר בלי ספריות חיצוניות */
+    .custom-navbar {
+        background-color: #ffffff;
+        padding: 12px 24px;
+        border-radius: 8px;
+        box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+        border: 1px solid #ced0d4;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        gap: 25px;
+    }
+    .nav-brand {
+        color: #1877F2;
+        font-size: 22px;
+        font-weight: bold;
+        margin: 0;
+    }
+    .nav-link {
+        color: #65676B;
+        font-size: 16px;
+        font-weight: 600;
+    }
+    .nav-link.active {
+        color: #1877F2;
+        border-bottom: 3px solid #1877F2;
+        padding-bottom: 5px;
+    }
 </style>
 """, unsafe_allow_html=True)
 
-# 4. יצירת סרגל ניווט עליון מקצועי (Hydralit)
-menu_data = [
-    {'icon': "fas fa-image", 'label': "סטודיו לעריכה"},
-    {'icon': "far fa-clone", 'label': "גלריית השראה"},
-    {'icon': "fas fa-sliders-h", 'label': "הגדרות פרו"}
-]
-
-# צבעי התפריט בסגנון פייסבוק
-over_theme = {'txc_inactive': '#65676B', 'menu_background': 'white', 'txc_active': '#1877F2',
-              'option_active': '#F0F2F5'}
-
-menu_id = hc.nav_bar(
-    menu_definition=menu_data,
-    override_theme=over_theme,
-    home_name='🌐 PhotoFix',
-    login_name=None,
-    hide_streamlit_markers=False,
-    sticky_nav=True,
-    sticky_mode='pinned',
-)
-
-st.markdown("<br>", unsafe_allow_html=True)
+# 4. הצגת סרגל הניווט העליון
+st.markdown("""
+<div class="custom-navbar">
+    <div class="nav-brand">🌐 PhotoFix</div>
+    <div class="nav-link active">סטודיו לעריכה</div>
+    <div class="nav-link">גלריית השראה</div>
+    <div class="nav-link">הגדרות פרו</div>
+</div>
+""", unsafe_allow_html=True)
 
 # 5. חלוקת אזור העבודה
 col_settings, col_feed = st.columns([1, 2.5], gap="large")
@@ -129,7 +144,7 @@ with col_feed:
             process_btn = st.button("🚀 הפעל מנוע שיפור מתקדם", use_container_width=True)
 
         if process_btn:
-            # מקום שומר לאנימציית הטעינה
+            # הזרקת האנימציה - מקום שומר לאנימציית הטעינה
             loading_placeholder = st.empty()
 
             with loading_placeholder.container():
