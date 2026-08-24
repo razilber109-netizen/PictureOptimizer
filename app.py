@@ -17,7 +17,7 @@ SUPABASE_URL = "https://bdbitcnhwylezraieqdx.supabase.co"
 SUPABASE_KEY = "sb_publishable_CKqrK1o8YZ8ZSiAP2iI3Xg_P_hd8j6U"
 
 supabase: Client = None
-if SUPABASE_URL != "הדבק_כאן_את_הכתובת_שלך":
+if SUPABASE_URL:
     try:
         supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
     except Exception as e:
@@ -111,7 +111,7 @@ if not st.session_state.user and not st.session_state.is_guest:
                         except Exception as e:
                             st.error(f"Login failed: {e}")
                     else:
-                        st.warning("Please fill in all fields or check Supabase connection.")
+                        st.warning("Please fill in all fields.")
             else:
                 if st.button("Create Account (Sign Up)", use_container_width=True):
                     if supabase and email_input and password_input:
@@ -121,7 +121,7 @@ if not st.session_state.user and not st.session_state.is_guest:
                         except Exception as e:
                             st.error(f"Sign up failed: {e}")
                     else:
-                        st.warning("Please fill in all fields or check Supabase connection.")
+                        st.warning("Please fill in all fields.")
 
             st.markdown("<hr>", unsafe_allow_html=True)
             st.markdown("<div class='guest-btn'>", unsafe_allow_html=True)
@@ -176,22 +176,32 @@ else:
                 "<h3 style='text-align:center; color:#050505; font-size:18px; margin-top:0;'>✨ Inspiration Gallery</h3>",
                 unsafe_allow_html=True)
 
-            gallery_html = """<style>
-    .gallery-wrapper { background: white; padding: 10px; border-radius: 8px; text-align: center; border: 1px solid #ced0d4; margin-bottom: 15px; }
-    .gallery-wrapper img { width: 100%; border-radius: 4px; margin-bottom: 5px; object-fit: cover; }
-    .badge { font-size: 11px; font-weight: bold; padding: 3px 8px; border-radius: 12px; display: inline-block; margin: 5px 0; }
-    .b-before { background: #E4E6EB; color: #050505; }
-    .b-after { background: #1877F2; color: white; }
-    .img-before { filter: brightness(60%) contrast(85%) blur(0.5px); }
-    .img-after { filter: brightness(110%) contrast(115%) saturate(120%); }
-    </style>
-    <marquee direction="up" scrollamount="3" height="400px" onmouseover="this.stop();" onmouseout="this.start();">"""
-
+            # גלריה מתוקנת שנטענת כהלכה בלי תקלות טקסט
+            gallery_html = """
+            <style>
+            .gallery-wrapper { background: white; padding: 10px; border-radius: 8px; text-align: center; border: 1px solid #ced0d4; margin-bottom: 15px; }
+            .gallery-wrapper img { width: 100%; border-radius: 4px; margin-bottom: 5px; object-fit: cover; }
+            .badge { font-size: 11px; font-weight: bold; padding: 3px 8px; border-radius: 12px; display: inline-block; margin: 5px 0; }
+            .b-before { background: #E4E6EB; color: #050505; }
+            .b-after { background: #1877F2; color: white; }
+            .img-before { filter: brightness(60%) contrast(85%) blur(0.5px); }
+            .img-after { filter: brightness(110%) contrast(115%) saturate(120%); }
+            </style>
+            <div style="height: 400px; overflow: hidden;">
+              <marquee direction="up" scrollamount="3" height="400px" onmouseover="this.stop();" onmouseout="this.start();">
+            """
             images = ["https://picsum.photos/id/10/400/300", "https://picsum.photos/id/11/400/300",
                       "https://picsum.photos/id/13/400/300"]
             for img in images * 2:
-                gallery_html += f"""<div class="gallery-wrapper"><span class="badge b-before">Original</span><img class="img-before" src="{img}"><span class="badge b-after">PhotoFix Enhanced</span><img class="img-after" src="{img}"></div>"""
-            gallery_html += "</marquee>"
+                gallery_html += f"""
+                <div class="gallery-wrapper">
+                    <span class="badge b-before">Original</span>
+                    <img class="img-before" src="{img}" />
+                    <span class="badge b-after">PhotoFix Enhanced</span>
+                    <img class="img-after" src="{img}" />
+                </div>
+                """
+            gallery_html += "</marquee></div>"
             st.markdown(gallery_html, unsafe_allow_html=True)
 
     # --- Right Column: Studio / Personal Gallery Tabs ---
@@ -230,7 +240,7 @@ else:
                     loading_placeholder = st.empty()
                     with loading_placeholder.container():
                         st.markdown(
-                            "<h4 style='text-align:center; color:#1877F2;'>Analyzing and optimizing image...</h4>",
+                            "<h4 style='text-align:center; color:#1877F2;`>Analyzing and optimizing image...</h4>",
                             unsafe_allow_html=True)
                         if lottie_ai:
                             st_lottie(lottie_ai, height=150, key="loading_anim")
@@ -314,8 +324,8 @@ else:
                             if files and len(files) > 0:
                                 cols = st.columns(3)
                                 for i, file_info in enumerate(files):
-                                    file_name = file_info['name']
-                                    if file_name != ".emptyFolderPlaceholder":
+                                    file_name = file_info.get('name')
+                                    if file_name and file_name != ".emptyFolderPlaceholder":
                                         public_url = supabase.storage.from_("user-images").get_public_url(
                                             f"{safe_email}/{file_name}")
 
