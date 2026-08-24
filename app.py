@@ -67,7 +67,7 @@ if uploaded_file is not None:
     col1, col2 = st.columns(2)
     with col1:
         st.markdown("<h3 style='text-align: center;'>המקור</h3>", unsafe_allow_html=True)
-        st.image(image, use_column_width=True)
+        st.image(image, use_container_width=True)
     with col2:
         st.markdown("<h3 style='text-align: center;'>אחרי שיפור</h3>", unsafe_allow_html=True)
-        st.image(final_rgb, use_column_width=True)
+        st.image(final_rgb, use_container_width=True)
