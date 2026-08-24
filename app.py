@@ -66,7 +66,7 @@ st.markdown("""
 # 5. Main Workspace Layout
 col_settings, col_feed = st.columns([1, 2.5], gap="large")
 
-# --- עמודה שמאלית: הגדרות + גלריה ---
+# --- Left Column: Settings + Inspiration Gallery ---
 with col_settings:
     with st.container(border=True):
         st.markdown("<h3 style='color:#050505; margin-top:0; font-size:18px;'>⚙️ Tools & Settings</h3>",
@@ -81,13 +81,12 @@ with col_settings:
         st.markdown("<p style='text-align:center; color:#65676B; font-size:13px;'>Real capabilities of our engine</p>",
                     unsafe_allow_html=True)
 
-        # הקוד מיושר לשמאל בלי רווחים כדי למנוע הפיכה לטקסט גולמי
         gallery_html = """<style>
 .gallery-wrapper {
     background: white; padding: 10px; border-radius: 8px; text-align: center;
     border: 1px solid #ced0d4; margin-bottom: 15px;
 }
-.gallery-wrapper img { width: 100%; border-radius: 4px; margin-bottom: 5px; }
+.gallery-wrapper img { width: 100%; border-radius: 4px; margin-bottom: 5px; object-fit: cover; }
 .badge { font-size: 11px; font-weight: bold; padding: 3px 8px; border-radius: 12px; display: inline-block; margin: 5px 0; }
 .b-before { background: #E4E6EB; color: #050505; }
 .b-after { background: #1877F2; color: white; }
@@ -96,25 +95,26 @@ with col_settings:
 </style>
 <marquee direction="up" scrollamount="3" height="400px" onmouseover="this.stop();" onmouseout="this.start();">"""
 
+        # תמונות ממקור אמין שלא נשבר
         images = [
-            "https://images.unsplash.com/photo-1506744626753-eba7bc3623ea?w=400&q=80",
-            "https://images.unsplash.com/photo-1495111316679-43c5e3144a2c?w=400&q=80",
-            "https://images.unsplash.com/photo-1516214104703-d2507f62742a?w=400&q=80"
+            "https://picsum.photos/id/10/400/300",
+            "https://picsum.photos/id/11/400/300",
+            "https://picsum.photos/id/13/400/300"
         ]
 
         for img in images * 2:
             gallery_html += f"""
 <div class="gallery-wrapper">
 <span class="badge b-before">Original</span>
-<img class="img-before" src="{img}">
+<img class="img-before" src="{img}" alt="before image" />
 <span class="badge b-after">PhotoFix Enhanced</span>
-<img class="img-after" src="{img}">
+<img class="img-after" src="{img}" alt="after image" />
 </div>"""
 
         gallery_html += "</marquee>"
         st.markdown(gallery_html, unsafe_allow_html=True)
 
-# --- עמודה ימנית: אזור העבודה המרכזי ---
+# --- Right Column: Main Upload & Process Workspace ---
 with col_feed:
     with st.container(border=True):
         st.markdown("<h3 style='color:#050505; margin-top:0; font-size:18px;'>📸 Upload Workspace</h3>",
