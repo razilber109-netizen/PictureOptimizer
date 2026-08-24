@@ -5,3 +5,4 @@ Pillow
 requests
 streamlit-cropper
 streamlit-lottie
+supabase
