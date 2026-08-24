@@ -1,4 +1,5 @@
 import streamlit as st
+import streamlit.components.v1 as components
 import cv2
 import numpy as np
 from PIL import Image
@@ -176,9 +177,12 @@ else:
                 "<h3 style='text-align:center; color:#050505; font-size:18px; margin-top:0;'>✨ Inspiration Gallery</h3>",
                 unsafe_allow_html=True)
 
-            # גלריה מתוקנת שנטענת כהלכה בלי תקלות טקסט
+            # שימוש ב-components.html כדי שהגלריה תרוץ חלק בלי בעיות טקסט
             gallery_html = """
+            <html>
+            <head>
             <style>
+            body { background-color: #ffffff; font-family: sans-serif; margin: 0; padding: 0; }
             .gallery-wrapper { background: white; padding: 10px; border-radius: 8px; text-align: center; border: 1px solid #ced0d4; margin-bottom: 15px; }
             .gallery-wrapper img { width: 100%; border-radius: 4px; margin-bottom: 5px; object-fit: cover; }
             .badge { font-size: 11px; font-weight: bold; padding: 3px 8px; border-radius: 12px; display: inline-block; margin: 5px 0; }
@@ -187,9 +191,11 @@ else:
             .img-before { filter: brightness(60%) contrast(85%) blur(0.5px); }
             .img-after { filter: brightness(110%) contrast(115%) saturate(120%); }
             </style>
-            <div style="height: 400px; overflow: hidden;">
-              <marquee direction="up" scrollamount="3" height="400px" onmouseover="this.stop();" onmouseout="this.start();">
+            </head>
+            <body>
+            <marquee direction="up" scrollamount="3" height="380px" onmouseover="this.stop();" onmouseout="this.start();">
             """
+
             images = ["https://picsum.photos/id/10/400/300", "https://picsum.photos/id/11/400/300",
                       "https://picsum.photos/id/13/400/300"]
             for img in images * 2:
@@ -201,8 +207,9 @@ else:
                     <img class="img-after" src="{img}" />
                 </div>
                 """
-            gallery_html += "</marquee></div>"
-            st.markdown(gallery_html, unsafe_allow_html=True)
+            gallery_html += "</marquee></body></html>"
+
+            components.html(gallery_html, height=400)
 
     # --- Right Column: Studio / Personal Gallery Tabs ---
     with col_feed:
@@ -240,7 +247,7 @@ else:
                     loading_placeholder = st.empty()
                     with loading_placeholder.container():
                         st.markdown(
-                            "<h4 style='text-align:center; color:#1877F2;`>Analyzing and optimizing image...</h4>",
+                            "<h4 style='text-align:center; color:#1877F2;'>Analyzing and optimizing image...</h4>",
                             unsafe_allow_html=True)
                         if lottie_ai:
                             st_lottie(lottie_ai, height=150, key="loading_anim")
