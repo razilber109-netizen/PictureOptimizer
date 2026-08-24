@@ -8,7 +8,7 @@ from streamlit_cropper import st_cropper
 from streamlit_lottie import st_lottie
 
 # 1. Page Config
-st.set_page_config(page_title="PhotoFix Pro", layout="wide", initial_sidebar_state="expanded")
+st.set_page_config(page_title="PhotoFix Pro", layout="wide")
 
 
 # 2. Lottie Animation Loader
@@ -25,7 +25,7 @@ def load_lottieurl(url: str):
 
 lottie_ai = load_lottieurl("https://lottie.host/81b10a27-eb63-4560-b636-6927a4216892/O6p6l1hXDe.json")
 
-# 3. Custom CSS (Facebook-like Light Theme)
+# 3. Custom CSS
 st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Assistant:wght@400;600;700&display=swap');
@@ -46,7 +46,6 @@ st.markdown("""
         box-shadow: 0 1px 2px rgba(0,0,0,0.1); padding: 1.5rem !important; margin-bottom: 1rem;
     }
 
-    /* Top Header */
     .top-header {
         background: white; padding: 15px 25px; border-radius: 8px; border: 1px solid #ced0d4;
         box-shadow: 0 1px 2px rgba(0,0,0,0.1); margin-bottom: 25px; display: flex; align-items: center;
@@ -64,64 +63,62 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-# 5. Sidebar - Inspiration Gallery (Fixed & Stable)
-with st.sidebar:
-    st.markdown("<h2 style='text-align:center; color:#050505; font-size:20px;'>✨ Inspiration Gallery</h2>",
-                unsafe_allow_html=True)
-    st.markdown("<p style='text-align:center; color:#65676B; font-size:14px;'>Real capabilities of our engine</p>",
-                unsafe_allow_html=True)
-
-    gallery_html = """
-    <style>
-    .gallery-wrapper {
-        background: white; padding: 10px; border-radius: 8px; text-align: center;
-        border: 1px solid #ced0d4; margin-bottom: 15px;
-    }
-    .gallery-wrapper img { width: 100%; border-radius: 4px; margin-bottom: 5px; }
-    .badge { font-size: 12px; font-weight: bold; padding: 4px 8px; border-radius: 12px; display: inline-block; margin: 5px 0; }
-    .b-before { background: #E4E6EB; color: #050505; }
-    .b-after { background: #1877F2; color: white; }
-
-    /* Filters to simulate before/after dynamically */
-    .img-before { filter: brightness(60%) contrast(85%) blur(0.5px); }
-    .img-after { filter: brightness(110%) contrast(115%) saturate(120%); }
-    </style>
-
-    <marquee direction="up" scrollamount="3" height="600px" onmouseover="this.stop();" onmouseout="this.start();">
-    """
-
-    images = [
-        "https://images.unsplash.com/photo-1506744626753-eba7bc3623ea?w=400&q=80",
-        "https://images.unsplash.com/photo-1495111316679-43c5e3144a2c?w=400&q=80",
-        "https://images.unsplash.com/photo-1516214104703-d2507f62742a?w=400&q=80"
-    ]
-
-    for img in images * 2:
-        gallery_html += f"""
-        <div class="gallery-wrapper">
-            <span class="badge b-before">Original</span>
-            <img class="img-before" src="{img}">
-            <span class="badge b-after">PhotoFix Enhanced</span>
-            <img class="img-after" src="{img}">
-        </div>
-        """
-
-    gallery_html += "</marquee>"
-    st.markdown(gallery_html, unsafe_allow_html=True)
-
-# 6. Main Workspace
+# 5. Main Workspace Layout
 col_settings, col_feed = st.columns([1, 2.5], gap="large")
 
+# --- עמודה שמאלית: הגדרות + הגלריה החדשה שתמיד מופיעה ---
 with col_settings:
     with st.container(border=True):
         st.markdown("<h3 style='color:#050505; margin-top:0; font-size:18px;'>⚙️ Tools & Settings</h3>",
                     unsafe_allow_html=True)
         st.markdown("<hr style='margin: 10px 0; border-color: #ced0d4;'>", unsafe_allow_html=True)
         enable_cropping = st.toggle("✂️ Manual Crop Tool", value=False)
-        st.markdown(
-            "<p style='font-size:14px; color:#65676B; line-height:1.6; margin-top:15px;'>Select whether to crop the image before running the optimization engine.</p>",
-            unsafe_allow_html=True)
 
+    # הגלריה יושבת עכשיו ישירות בתוך העמודה, לא בסרגל צד נעלם
+    with st.container(border=True):
+        st.markdown(
+            "<h3 style='text-align:center; color:#050505; font-size:18px; margin-top:0;'>✨ Inspiration Gallery</h3>",
+            unsafe_allow_html=True)
+        st.markdown("<p style='text-align:center; color:#65676B; font-size:13px;'>Real capabilities of our engine</p>",
+                    unsafe_allow_html=True)
+
+        gallery_html = """
+        <style>
+        .gallery-wrapper {
+            background: white; padding: 10px; border-radius: 8px; text-align: center;
+            border: 1px solid #ced0d4; margin-bottom: 15px;
+        }
+        .gallery-wrapper img { width: 100%; border-radius: 4px; margin-bottom: 5px; }
+        .badge { font-size: 11px; font-weight: bold; padding: 3px 8px; border-radius: 12px; display: inline-block; margin: 5px 0; }
+        .b-before { background: #E4E6EB; color: #050505; }
+        .b-after { background: #1877F2; color: white; }
+        .img-before { filter: brightness(60%) contrast(85%) blur(0.5px); }
+        .img-after { filter: brightness(110%) contrast(115%) saturate(120%); }
+        </style>
+
+        <marquee direction="up" scrollamount="3" height="400px" onmouseover="this.stop();" onmouseout="this.start();">
+        """
+
+        images = [
+            "https://images.unsplash.com/photo-1506744626753-eba7bc3623ea?w=400&q=80",
+            "https://images.unsplash.com/photo-1495111316679-43c5e3144a2c?w=400&q=80",
+            "https://images.unsplash.com/photo-1516214104703-d2507f62742a?w=400&q=80"
+        ]
+
+        for img in images * 2:
+            gallery_html += f"""
+            <div class="gallery-wrapper">
+                <span class="badge b-before">Original</span>
+                <img class="img-before" src="{img}">
+                <span class="badge b-after">PhotoFix Enhanced</span>
+                <img class="img-after" src="{img}">
+            </div>
+            """
+
+        gallery_html += "</marquee>"
+        st.markdown(gallery_html, unsafe_allow_html=True)
+
+# --- עמודה ימנית: אזור העבודה המרכזי ---
 with col_feed:
     with st.container(border=True):
         st.markdown("<h3 style='color:#050505; margin-top:0; font-size:18px;'>📸 Upload Workspace</h3>",
