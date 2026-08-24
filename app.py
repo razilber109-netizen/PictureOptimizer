@@ -7,11 +7,11 @@ import requests
 from streamlit_cropper import st_cropper
 from streamlit_lottie import st_lottie
 
-# 1. הגדרת הדף - חובה להיות ראשון
-st.set_page_config(page_title="PhotoFix", layout="wide", initial_sidebar_state="collapsed")
+# 1. הגדרת הדף - חובה לשים פריסה רחבה וסרגל צד פתוח תמיד!
+st.set_page_config(page_title="PhotoFix", layout="wide", initial_sidebar_state="expanded")
 
 
-# 2. פונקציה לטעינת אנימציות רשת (Lottie)
+# 2. פונקציה לטעינת אנימציות רשת
 @st.cache_data
 def load_lottieurl(url: str):
     try:
@@ -23,92 +23,105 @@ def load_lottieurl(url: str):
         return None
 
 
-# טעינת אנימציית הטעינה של הבינה המלאכותית
 lottie_ai = load_lottieurl("https://lottie.host/81b10a27-eb63-4560-b636-6927a4216892/O6p6l1hXDe.json")
 
-# 3. עיצוב CSS מתקדם (סגנון פייסבוק + תפריט עליון בנוי אישית)
+# 3. עיצוב CSS מתקדם (פייסבוק + גלריה רצה)
 st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Assistant:wght@400;600;700&display=swap');
     html, body, [class*="css"] {
         font-family: 'Segoe UI', 'Assistant', Tahoma, Geneva, Verdana, sans-serif !important;
     }
-
-    /* רקע אפור פייסבוק */
     .stApp { background-color: #F0F2F5; }
+    #MainMenu {visibility: hidden;} footer {visibility: hidden;} header {visibility: hidden;}
 
-    /* הסתרת מיתוג Streamlit */
-    #MainMenu {visibility: hidden;}
-    footer {visibility: hidden;}
-    header {visibility: hidden;}
-
-    /* עיצוב כפתורים */
     .stButton > button {
-        background-color: #1877F2;
-        color: #ffffff;
-        font-weight: 600;
-        border-radius: 6px;
-        border: none;
-        padding: 0.5rem 1rem;
-        transition: 0.2s;
+        background-color: #1877F2; color: #ffffff; font-weight: 600;
+        border-radius: 6px; border: none; padding: 0.5rem 1rem; transition: 0.2s;
     }
-    .stButton > button:hover {
-        background-color: #166FE5;
-        color: white;
-    }
+    .stButton > button:hover { background-color: #166FE5; color: white; }
 
-    /* עיצוב הכרטיסיות המגודרות */
     [data-testid="stVerticalBlockBorderWrapper"] {
-        background-color: #ffffff;
-        border-radius: 8px;
-        border: 1px solid #ced0d4 !important;
-        box-shadow: 0 1px 2px rgba(0,0,0,0.1);
-        padding: 1.5rem !important;
-        margin-bottom: 1rem;
+        background-color: #ffffff; border-radius: 8px; border: 1px solid #ced0d4 !important;
+        box-shadow: 0 1px 2px rgba(0,0,0,0.1); padding: 1.5rem !important; margin-bottom: 1rem;
     }
 
-    /* בניית תפריט עליון יציב ומהיר בלי ספריות חיצוניות */
-    .custom-navbar {
-        background-color: #ffffff;
-        padding: 12px 24px;
-        border-radius: 8px;
-        box-shadow: 0 1px 2px rgba(0,0,0,0.1);
-        border: 1px solid #ced0d4;
-        margin-bottom: 20px;
-        display: flex;
-        align-items: center;
-        gap: 25px;
+    /* כותרת עליונה חדשה ומקצועית */
+    .top-header {
+        background: white; padding: 15px 25px; border-radius: 8px; border: 1px solid #ced0d4;
+        box-shadow: 0 1px 2px rgba(0,0,0,0.1); margin-bottom: 25px; display: flex; align-items: center;
     }
-    .nav-brand {
-        color: #1877F2;
-        font-size: 22px;
-        font-weight: bold;
-        margin: 0;
-    }
-    .nav-link {
-        color: #65676B;
-        font-size: 16px;
-        font-weight: 600;
-    }
-    .nav-link.active {
-        color: #1877F2;
-        border-bottom: 3px solid #1877F2;
-        padding-bottom: 5px;
-    }
+    .top-header h1 { color: #1877F2; margin: 0; font-size: 24px; font-weight: bold; }
+    .top-header p { color: #65676B; margin: 0; margin-right: 15px; font-size: 15px; padding-top: 5px; }
 </style>
 """, unsafe_allow_html=True)
 
-# 4. הצגת סרגל הניווט העליון
+# 4. כותרת עליונה אמיתית
 st.markdown("""
-<div class="custom-navbar">
-    <div class="nav-brand">🌐 PhotoFix</div>
-    <div class="nav-link active">סטודיו לעריכה</div>
-    <div class="nav-link">גלריית השראה</div>
-    <div class="nav-link">הגדרות פרו</div>
+<div class="top-header">
+    <h1>🌐 PhotoFix</h1>
+    <p>מערכת הסטודיו המרכזית - ניקוי, שיפור ואופטימיזציה</p>
 </div>
 """, unsafe_allow_html=True)
 
-# 5. חלוקת אזור העבודה
+# 5. --- בניית הגלריה הרצה בסרגל הצד (Sidebar) ---
+with st.sidebar:
+    st.markdown("<h2 style='text-align:center; color:#050505; font-size:20px;'>✨ גלריית השראה</h2>",
+                unsafe_allow_html=True)
+    st.markdown("<p style='text-align:center; color:#65676B; font-size:14px;'>דוגמאות ליכולות המערכת שלנו</p>",
+                unsafe_allow_html=True)
+
+    # CSS ו-HTML עבור האנימציה של הגלריה
+    gallery_html = """
+    <style>
+    .slider-container {
+        height: 75vh; overflow: hidden; position: relative; padding: 5px;
+    }
+    .slider-track {
+        animation: scrollVertical 25s linear infinite; display: flex; flex-direction: column; gap: 20px;
+    }
+    .slider-track:hover { animation-play-state: paused; }
+    @keyframes scrollVertical { 0% { transform: translateY(0); } 100% { transform: translateY(-50%); } }
+    .gallery-card {
+        background: white; padding: 12px; border-radius: 8px; text-align: center;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1); border: 1px solid #ced0d4;
+    }
+    .gallery-card img { width: 100%; border-radius: 4px; margin-bottom: 5px; }
+
+    /* שימוש בפילטרים כדי לזייף לפני ואחרי מתמונות רשת איכותיות */
+    .img-before { filter: brightness(55%) contrast(85%) sepia(20%) blur(0.5px); }
+    .img-after { filter: brightness(110%) contrast(115%) saturate(120%); }
+
+    .badge { font-size: 12px; font-weight: bold; padding: 4px 10px; border-radius: 12px; display: inline-block; margin-bottom: 8px; }
+    .badge-before { background: #E4E6EB; color: #050505; }
+    .badge-after { background: #1877F2; color: white; margin-top: 15px; }
+    </style>
+    <div class="slider-container">
+        <div class="slider-track">
+    """
+
+    # מאגר תמונות מהאינטרנט
+    images = [
+        "https://images.unsplash.com/photo-1506744626753-eba7bc3623ea?w=400&q=80",
+        "https://images.unsplash.com/photo-1495111316679-43c5e3144a2c?w=400&q=80",
+        "https://images.unsplash.com/photo-1516214104703-d2507f62742a?w=400&q=80"
+    ]
+
+    # מכפילים את התמונות כדי שהגלילה לא תעצור לעולם
+    for img in images * 3:
+        gallery_html += f"""
+        <div class="gallery-card">
+            <span class="badge badge-before">לפני עיבוד</span>
+            <img class="img-before" src="{img}">
+            <span class="badge badge-after">אחרי PhotoFix</span>
+            <img class="img-after" src="{img}">
+        </div>
+        """
+    gallery_html += "</div></div>"
+
+    st.markdown(gallery_html, unsafe_allow_html=True)
+
+# 6. --- אזור העבודה המרכזי ---
 col_settings, col_feed = st.columns([1, 2.5], gap="large")
 
 with col_settings:
@@ -123,9 +136,9 @@ with col_settings:
 
 with col_feed:
     with st.container(border=True):
-        st.markdown("<h3 style='color:#050505; margin-top:0; font-size:18px;'>📸 צור פוסט / העלה תמונה</h3>",
+        st.markdown("<h3 style='color:#050505; margin-top:0; font-size:18px;'>📸 אזור העלאת תמונות</h3>",
                     unsafe_allow_html=True)
-        uploaded_file = st.file_uploader("בחר תמונה לעיבוד", type=['jpg', 'jpeg', 'png'])
+        uploaded_file = st.file_uploader("בחר או גרור קובץ לכאן", type=['jpg', 'jpeg', 'png'])
 
     if uploaded_file is not None:
         image = Image.open(uploaded_file)
@@ -144,16 +157,13 @@ with col_feed:
             process_btn = st.button("🚀 הפעל מנוע שיפור מתקדם", use_container_width=True)
 
         if process_btn:
-            # הזרקת האנימציה - מקום שומר לאנימציית הטעינה
             loading_placeholder = st.empty()
-
             with loading_placeholder.container():
                 st.markdown("<h4 style='text-align:center; color:#1877F2;'>מנתח ומנקה את התמונה...</h4>",
                             unsafe_allow_html=True)
                 if lottie_ai:
                     st_lottie(lottie_ai, height=150, key="loading_anim")
 
-            # --- תהליך העיבוד ---
             img_array = np.array(img_to_process)
             img_bgr = cv2.cvtColor(img_array, cv2.COLOR_RGB2BGR)
 
@@ -167,10 +177,8 @@ with col_feed:
             final_bgr = cv2.fastNlMeansDenoisingColored(optimized_bgr, None, 5, 5, 7, 21)
             final_rgb = cv2.cvtColor(final_bgr, cv2.COLOR_BGR2RGB)
 
-            # מחיקת אנימציית הטעינה לאחר סיום העיבוד
             loading_placeholder.empty()
 
-            # --- הצגת התוצאות ---
             with st.container(border=True):
                 st.markdown("<h3 style='color:#050505; font-size:18px; margin-top:0;'>✨ תוצאות סופיות</h3>",
                             unsafe_allow_html=True)
