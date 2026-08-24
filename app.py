@@ -2,109 +2,112 @@ import streamlit as st
 import cv2
 import numpy as np
 from PIL import Image
+import io
+from streamlit_cropper import st_cropper
 
-# הגדרות עמוד - פריסה ממורכזת ונקייה
-st.set_page_config(page_title="Image Enhancement Tool", layout="centered")
+# הגדרת הפריסה לרחבה כדי שסרגל הצד ייראה טוב
+st.set_page_config(page_title="PhotoFix", layout="wide")
 
-# עיצוב מוקפד ומינימליסטי בסגנון Google Material
-clean_google_css = """
+# עיצוב CSS מתקדם: רקע גיאומטרי, מיתוג וטקסט רץ
+custom_css = """
 <style>
-    @import url('https://fonts.googleapis.com/css2?family=Assistant:wght@400;500;600&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Assistant:wght@400;700;800&display=swap');
+    html, body, [class*="css"] { font-family: 'Assistant', sans-serif; }
 
-    html, body, [class*="css"] {
-        font-family: 'Assistant', sans-serif;
-    }
-
-    /* הסתרת אלמנטים מיותרים של סטרים-ליט */
-    #MainMenu {visibility: hidden;}
-    footer {visibility: hidden;}
-    header {visibility: hidden;}
-
-    /* רקע לבן ונקי לכל האתר */
+    /* הוספת רקע גיאומטרי עכשווי (עיגולי תאורה על רקע כהה) */
     .stApp {
-        background-color: #ffffff;
+        background-color: #0f172a;
+        background-image: radial-gradient(circle at 15% 50%, rgba(56, 189, 248, 0.1), transparent 25%), 
+                          radial-gradient(circle at 85% 30%, rgba(139, 92, 246, 0.15), transparent 25%);
+        color: white;
     }
 
-    /* טיפוגרפיה מקצועית לכותרות */
-    h1 {
-        color: #202124;
-        font-weight: 500;
-        font-size: 2.2rem;
+    /* מיתוג PhotoFix */
+    .brand-title {
+        font-size: 4rem;
+        font-weight: 800;
+        background: -webkit-linear-gradient(45deg, #38bdf8, #8b5cf6);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
         text-align: center;
-        margin-bottom: 0.5rem;
-    }
-    p {
-        color: #5f6368;
-        font-size: 1rem;
-        text-align: center;
-        margin-bottom: 2rem;
+        margin-bottom: 0;
     }
 
-    h3 {
-        color: #3c4043;
-        font-size: 1.1rem;
-        font-weight: 500;
-        text-align: center;
-        margin-bottom: 1rem;
+    /* אנימציה לגלריה הרצה בצד */
+    .marquee {
+        width: 100%;
+        overflow: hidden;
+        white-space: nowrap;
+        background: rgba(255,255,255,0.05);
+        padding: 15px 0;
+        border-radius: 10px;
     }
-
-    /* עיצוב עדין ונקי לאזור העלאת הקבצים */
-    [data-testid="stFileUploadDropzone"] {
-        border: 1px solid #dadce0 !important;
-        border-radius: 8px !important;
-        background-color: #ffffff !important;
-        padding: 2rem !important;
-        transition: all 0.2s ease;
+    .marquee p {
+        display: inline-block;
+        animation: scroll 15s linear infinite;
+        color: #38bdf8;
+        font-weight: bold;
+        margin: 0;
     }
-    [data-testid="stFileUploadDropzone"]:hover {
-        border: 1px solid #1a73e8 !important;
-        background-color: #f8f9fa !important;
-    }
-
-    /* מסגרת עדינה לתמונות המוצגות */
-    [data-testid="stImage"] img {
-        border: 1px solid #e8eaed;
-        border-radius: 4px;
+    @keyframes scroll {
+        0% { transform: translateX(100%); }
+        100% { transform: translateX(-100%); }
     }
 </style>
 """
-st.markdown(clean_google_css, unsafe_allow_html=True)
+st.markdown(custom_css, unsafe_allow_html=True)
 
-# ----- תוכן האתר -----
+# אזור סרגל הצד (Sidebar) לגלריה רצה
+with st.sidebar:
+    st.markdown("<h2 style='text-align:center;'>גלריית השראה</h2>", unsafe_allow_html=True)
+    st.markdown('<div class="marquee"><p>📸 תמונה 1: מקור ➡️ עיבוד | 📸 תמונה 2: מקור ➡️ עיבוד </p></div>',
+                unsafe_allow_html=True)
+    st.write("כאן ניתן לקשר בהמשך תיקיית תמונות אמיתית שתרוץ בצד.")
 
-st.markdown("<h1>כלי לשיפור איכות תמונה</h1>", unsafe_allow_html=True)
-st.markdown("<p>מערכת אוטומטית לניקוי רעשים ואופטימיזציה של תאורה וצבע.</p>", unsafe_allow_html=True)
+# כותרת ראשית במרכז המסך
+st.markdown('<h1 class="brand-title">📸 PhotoFix</h1>', unsafe_allow_html=True)
+st.markdown("<p style='text-align: center; color: #94a3b8;'>פלטפורמה מקצועית לחיתוך, ניקוי ושיפור תאורת תמונות.</p>",
+            unsafe_allow_html=True)
+st.markdown("---")
 
-uploaded_file = st.file_uploader("בחר או גרור קובץ תמונה לכאן", type=['jpg', 'jpeg', 'png'])
+uploaded_file = st.file_uploader("העלה תמונה להתחלת עבודה", type=['jpg', 'jpeg', 'png'])
 
 if uploaded_file is not None:
-    # קריאת התמונה
     image = Image.open(uploaded_file)
-    img_array = np.array(image)
-    img_bgr = cv2.cvtColor(img_array, cv2.COLOR_RGB2BGR)
 
-    with st.spinner('מעבד את התמונה...'):
-        # 1. שלב האופטימיזציה (CLAHE) לשיפור ניגודיות
-        lab = cv2.cvtColor(img_bgr, cv2.COLOR_BGR2LAB)
-        l, a, b = cv2.split(lab)
-        clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8, 8))
-        cl = clahe.apply(l)
-        limg = cv2.merge((cl, a, b))
-        optimized_bgr = cv2.cvtColor(limg, cv2.COLOR_LAB2BGR)
+    st.markdown("### ✂️ 1. חיתוך התמונה")
+    # הצגת ממשק החיתוך
+    cropped_img = st_cropper(image, realtime_update=True, box_color='#38bdf8')
 
-        # 2. שלב ניקוי הרעשים
-        final_bgr = cv2.fastNlMeansDenoisingColored(optimized_bgr, None, 5, 5, 7, 21)
+    st.markdown("### 🪄 2. עיבוד והורדה")
+    if st.button("החל אופטימיזציה על האזור החתוך"):
+        img_array = np.array(cropped_img)
+        img_bgr = cv2.cvtColor(img_array, cv2.COLOR_RGB2BGR)
 
-        # המרה חזרה להצגה במסך
-        final_rgb = cv2.cvtColor(final_bgr, cv2.COLOR_BGR2RGB)
+        with st.spinner('משפר ניגודיות ומנקה רעשים...'):
+            # שיפור תאורה מקומי
+            lab = cv2.cvtColor(img_bgr, cv2.COLOR_BGR2LAB)
+            l, a, b = cv2.split(lab)
+            clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8, 8))
+            cl = clahe.apply(l)
+            limg = cv2.merge((cl, a, b))
+            optimized_bgr = cv2.cvtColor(limg, cv2.COLOR_LAB2BGR)
 
-    st.markdown("<br>", unsafe_allow_html=True)
+            # החלקת רעשים עדינה
+            final_bgr = cv2.fastNlMeansDenoisingColored(optimized_bgr, None, 5, 5, 7, 21)
+            final_rgb = cv2.cvtColor(final_bgr, cv2.COLOR_BGR2RGB)
 
-    # תצוגה זה לצד זה
-    col1, col2 = st.columns(2)
-    with col1:
-        st.markdown("<h3>תמונת מקור</h3>", unsafe_allow_html=True)
-        st.image(image, use_container_width=True)
-    with col2:
-        st.markdown("<h3>לאחר עיבוד</h3>", unsafe_allow_html=True)
-        st.image(final_rgb, use_container_width=True)
+        st.image(final_rgb, caption="התמונה המוכנה", use_container_width=True)
+
+        # המרה חזרה לפורמט PNG שאינו מאבד מידע (Lossless)
+        result_pil = Image.fromarray(final_rgb)
+        buf = io.BytesIO()
+        result_pil.save(buf, format="PNG")
+        byte_im = buf.getvalue()
+
+        st.download_button(
+            label="📥 הורד תמונה מלאה באיכות מקסימלית",
+            data=byte_im,
+            file_name="PhotoFix_Enhanced.png",
+            mime="image/png"
+        )
