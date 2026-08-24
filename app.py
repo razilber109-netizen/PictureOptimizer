@@ -66,7 +66,7 @@ st.markdown("""
 # 5. Main Workspace Layout
 col_settings, col_feed = st.columns([1, 2.5], gap="large")
 
-# --- עמודה שמאלית: הגדרות + הגלריה החדשה שתמיד מופיעה ---
+# --- עמודה שמאלית: הגדרות + גלריה ---
 with col_settings:
     with st.container(border=True):
         st.markdown("<h3 style='color:#050505; margin-top:0; font-size:18px;'>⚙️ Tools & Settings</h3>",
@@ -74,7 +74,6 @@ with col_settings:
         st.markdown("<hr style='margin: 10px 0; border-color: #ced0d4;'>", unsafe_allow_html=True)
         enable_cropping = st.toggle("✂️ Manual Crop Tool", value=False)
 
-    # הגלריה יושבת עכשיו ישירות בתוך העמודה, לא בסרגל צד נעלם
     with st.container(border=True):
         st.markdown(
             "<h3 style='text-align:center; color:#050505; font-size:18px; margin-top:0;'>✨ Inspiration Gallery</h3>",
@@ -82,22 +81,20 @@ with col_settings:
         st.markdown("<p style='text-align:center; color:#65676B; font-size:13px;'>Real capabilities of our engine</p>",
                     unsafe_allow_html=True)
 
-        gallery_html = """
-        <style>
-        .gallery-wrapper {
-            background: white; padding: 10px; border-radius: 8px; text-align: center;
-            border: 1px solid #ced0d4; margin-bottom: 15px;
-        }
-        .gallery-wrapper img { width: 100%; border-radius: 4px; margin-bottom: 5px; }
-        .badge { font-size: 11px; font-weight: bold; padding: 3px 8px; border-radius: 12px; display: inline-block; margin: 5px 0; }
-        .b-before { background: #E4E6EB; color: #050505; }
-        .b-after { background: #1877F2; color: white; }
-        .img-before { filter: brightness(60%) contrast(85%) blur(0.5px); }
-        .img-after { filter: brightness(110%) contrast(115%) saturate(120%); }
-        </style>
-
-        <marquee direction="up" scrollamount="3" height="400px" onmouseover="this.stop();" onmouseout="this.start();">
-        """
+        # הקוד מיושר לשמאל בלי רווחים כדי למנוע הפיכה לטקסט גולמי
+        gallery_html = """<style>
+.gallery-wrapper {
+    background: white; padding: 10px; border-radius: 8px; text-align: center;
+    border: 1px solid #ced0d4; margin-bottom: 15px;
+}
+.gallery-wrapper img { width: 100%; border-radius: 4px; margin-bottom: 5px; }
+.badge { font-size: 11px; font-weight: bold; padding: 3px 8px; border-radius: 12px; display: inline-block; margin: 5px 0; }
+.b-before { background: #E4E6EB; color: #050505; }
+.b-after { background: #1877F2; color: white; }
+.img-before { filter: brightness(60%) contrast(85%) blur(0.5px); }
+.img-after { filter: brightness(110%) contrast(115%) saturate(120%); }
+</style>
+<marquee direction="up" scrollamount="3" height="400px" onmouseover="this.stop();" onmouseout="this.start();">"""
 
         images = [
             "https://images.unsplash.com/photo-1506744626753-eba7bc3623ea?w=400&q=80",
@@ -107,13 +104,12 @@ with col_settings:
 
         for img in images * 2:
             gallery_html += f"""
-            <div class="gallery-wrapper">
-                <span class="badge b-before">Original</span>
-                <img class="img-before" src="{img}">
-                <span class="badge b-after">PhotoFix Enhanced</span>
-                <img class="img-after" src="{img}">
-            </div>
-            """
+<div class="gallery-wrapper">
+<span class="badge b-before">Original</span>
+<img class="img-before" src="{img}">
+<span class="badge b-after">PhotoFix Enhanced</span>
+<img class="img-after" src="{img}">
+</div>"""
 
         gallery_html += "</marquee>"
         st.markdown(gallery_html, unsafe_allow_html=True)
