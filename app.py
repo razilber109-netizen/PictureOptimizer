@@ -13,11 +13,9 @@ from supabase import create_client, Client
 st.set_page_config(page_title="PhotoFix Pro", layout="wide")
 
 # --- SUPABASE CONFIGURATION ---
-# הכנס כאן את הנתונים שקיבלת מהפרויקט שלך ב-Supabase
-SUPABASE_URL = "https://bdbitcnhwylezraieqdx.supabase.co/rest/v1/"
-SUPABASE_KEY = "sb_secret___0cQIqJQfJuUmNDEmyvcQ_hOXfIEsF"
+SUPABASE_URL = "https://bdbitcnhwylezraieqdx.supabase.co"
+SUPABASE_KEY = "sb_publishable_CKqrK1o8YZ8ZSiAP2iI3Xg_P_hd8j6U"
 
-# חיבור ללקוח של סופבייס (אם טרם הוגדרו מפתחות, האתר יעבוד כרגיל בלי שמירת ענן עד שתוסיף אותם)
 supabase: Client = None
 if SUPABASE_URL != "הדבק_כאן_את_הכתובת_שלך":
     try:
@@ -26,12 +24,10 @@ if SUPABASE_URL != "הדבק_כאן_את_הכתובת_שלך":
         st.error(f"Failed to connect to Supabase: {e}")
 
 # --- Session State Initialization ---
-if 'logged_in' not in st.session_state:
-    st.session_state.logged_in = False
+if 'user' not in st.session_state:
+    st.session_state.user = None
 if 'is_guest' not in st.session_state:
     st.session_state.is_guest = False
-if 'username' not in st.session_state:
-    st.session_state.username = ""
 
 
 # 2. Lottie Animation Loader
@@ -86,35 +82,51 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # ==========================================
-# LOGIN PAGE
+# AUTHENTICATION PAGE (LOGIN / SIGN UP)
 # ==========================================
-if not st.session_state.logged_in and not st.session_state.is_guest:
+if not st.session_state.user and not st.session_state.is_guest:
     col1, col2, col3 = st.columns([1, 1.2, 1])
     with col2:
         st.markdown("<br><br><br>", unsafe_allow_html=True)
         with st.container(border=True):
             st.markdown("<h1 style='text-align:center; color:#1877F2;'>🌐 PhotoFix</h1>", unsafe_allow_html=True)
-            st.markdown(
-                "<p style='text-align:center; color:#65676B;'>Welcome! Log in to access your cloud gallery.</p><hr>",
-                unsafe_allow_html=True)
+            st.markdown("<p style='text-align:center; color:#65676B;'>Professional Image Optimization Studio</p><hr>",
+                        unsafe_allow_html=True)
 
-            username_input = st.text_input("Username")
+            auth_mode = st.radio("Choose action", ["Log In", "Sign Up"], horizontal=True, label_visibility="collapsed")
+
+            email_input = st.text_input("Email Address")
             password_input = st.text_input("Password", type="password")
 
             st.markdown("<br>", unsafe_allow_html=True)
 
-            if st.button("Log In", use_container_width=True):
-                if username_input.strip() != "":
-                    st.session_state.logged_in = True
-                    st.session_state.username = username_input.strip().lower()
-                    st.rerun()
-                else:
-                    st.error("Please enter a valid username.")
+            if auth_mode == "Log In":
+                if st.button("Log In to Account", use_container_width=True):
+                    if supabase and email_input and password_input:
+                        try:
+                            res = supabase.auth.sign_in_with_password(
+                                {"email": email_input, "password": password_input})
+                            st.session_state.user = res.user
+                            st.rerun()
+                        except Exception as e:
+                            st.error(f"Login failed: {e}")
+                    else:
+                        st.warning("Please fill in all fields or check Supabase connection.")
+            else:
+                if st.button("Create Account (Sign Up)", use_container_width=True):
+                    if supabase and email_input and password_input:
+                        try:
+                            res = supabase.auth.sign_up({"email": email_input, "password": password_input})
+                            st.success("Account created successfully! You can now log in.")
+                        except Exception as e:
+                            st.error(f"Sign up failed: {e}")
+                    else:
+                        st.warning("Please fill in all fields or check Supabase connection.")
 
+            st.markdown("<hr>", unsafe_allow_html=True)
             st.markdown("<div class='guest-btn'>", unsafe_allow_html=True)
             if st.button("Continue as Guest", use_container_width=True):
                 st.session_state.is_guest = True
-                st.session_state.username = "Guest"
                 st.rerun()
             st.markdown("</div>", unsafe_allow_html=True)
 
@@ -122,6 +134,8 @@ if not st.session_state.logged_in and not st.session_state.is_guest:
 # MAIN APP (LOGGED IN OR GUEST)
 # ==========================================
 else:
+    user_identifier = st.session_state.user.email if st.session_state.user else "Guest User"
+
     st.markdown(f"""
     <div class="top-header">
         <div class="header-left">
@@ -129,7 +143,7 @@ else:
             <p>Professional Image Enhancement & Optimization Studio</p>
         </div>
         <div class="header-right">
-            Hello, {st.session_state.username} 👋
+            Hello, {user_identifier} 👋
         </div>
     </div>
     """, unsafe_allow_html=True)
@@ -137,9 +151,13 @@ else:
     col_out1, col_out2 = st.columns([10, 1])
     with col_out2:
         if st.button("Log Out"):
-            st.session_state.logged_in = False
+            if supabase and st.session_state.user:
+                try:
+                    supabase.auth.sign_out()
+                except:
+                    pass
+            st.session_state.user = None
             st.session_state.is_guest = False
-            st.session_state.username = ""
             st.rerun()
 
     # --- Main Workspace Layout ---
@@ -178,7 +196,7 @@ else:
 
     # --- Right Column: Studio / Personal Gallery Tabs ---
     with col_feed:
-        if st.session_state.logged_in:
+        if st.session_state.user:
             tab_studio, tab_gallery = st.tabs(["🎨 Edit Studio", "📁 Cloud Personal Gallery"])
         else:
             tab_studio = st.container()
@@ -233,14 +251,15 @@ else:
                     result_pil = Image.fromarray(final_rgb)
 
                     # --- SAVE TO SUPABASE CLOUD STORAGE ---
-                    if st.session_state.logged_in and supabase:
+                    if st.session_state.user and supabase:
                         try:
                             buf_temp = io.BytesIO()
                             result_pil.save(buf_temp, format="PNG")
                             byte_data = buf_temp.getvalue()
 
+                            safe_email = st.session_state.user.email.replace("@", "_at_").replace(".", "_")
                             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-                            file_path = f"{st.session_state.username}/PhotoFix_{timestamp}.png"
+                            file_path = f"{safe_email}/PhotoFix_{timestamp}.png"
 
                             supabase.storage.from_("user-images").upload(
                                 file=byte_data,
@@ -287,19 +306,18 @@ else:
                                 unsafe_allow_html=True)
                     st.markdown("<hr style='margin: 10px 0; border-color: #ced0d4;'>", unsafe_allow_html=True)
 
-                    if supabase:
+                    if supabase and st.session_state.user:
                         try:
-                            # שליפת רשימת הקבצים מתוך תיקיית המשתמש בענן
-                            files = supabase.storage.from_("user-images").list(st.session_state.username)
+                            safe_email = st.session_state.user.email.replace("@", "_at_").replace(".", "_")
+                            files = supabase.storage.from_("user-images").list(safe_email)
 
                             if files and len(files) > 0:
                                 cols = st.columns(3)
                                 for i, file_info in enumerate(files):
                                     file_name = file_info['name']
                                     if file_name != ".emptyFolderPlaceholder":
-                                        # קבלת לינק ציבורי להצגת והורדת התמונה מהענן
                                         public_url = supabase.storage.from_("user-images").get_public_url(
-                                            f"{st.session_state.username}/{file_name}")
+                                            f"{safe_email}/{file_name}")
 
                                         with cols[i % 3]:
                                             st.image(public_url, use_container_width=True)
@@ -311,5 +329,4 @@ else:
                         except Exception as e:
                             st.error(f"Could not load gallery from cloud: {e}")
                     else:
-                        st.warning(
-                            "Supabase credentials are not configured yet. Please add your URL and Key in the code.")
+                        st.warning("Supabase credentials are not configured yet.")
