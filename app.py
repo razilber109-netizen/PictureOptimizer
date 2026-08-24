@@ -3,71 +3,80 @@ import cv2
 import numpy as np
 from PIL import Image
 
-# הגדרות עמוד - פריסה ממורכזת ונקייה
+# חובה: הגדרת עמוד - פריסה ממורכזת
 st.set_page_config(page_title="Image Optimizer Pro", layout="centered")
 
-# עיצוב מתקדם (CSS) לאתר - צבעים, פינות מעוגלות והסתרת מיתוג
-st.markdown("""
-    <style>
-    /* הסתרת התפריט של Streamlit */
+# העיצוב המלא בסגנון גוגל
+google_css = """
+<style>
+    /* ייבוא פונט נקי מגוגל */
+    @import url('https://fonts.googleapis.com/css2?family=Assistant:wght@400;600;800&display=swap');
+
+    html, body, [class*="css"] {
+        font-family: 'Assistant', sans-serif;
+    }
+
+    /* הסתרת המיתוג של סטרים-ליט */
     #MainMenu {visibility: hidden;}
     footer {visibility: hidden;}
     header {visibility: hidden;}
 
-    /* עיצוב רקע האפליקציה והכותרות */
-    .stApp {background-color: #f4f7f6;}
-    h1 {color: #1e3d59; text-align: center; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;}
-
-    /* עיצוב כפתור העלאת הקובץ */
-    .stFileUploader > div > div > div > button {
-        background-color: #ff6e40;
-        color: white;
-        border-radius: 10px;
-        font-weight: bold;
+    /* רקע כללי אפור בהיר נקי */
+    .stApp {
+        background-color: #f8f9fa;
     }
 
-    /* עיצוב הקופסאות של התמונות */
-    .css-1v0mbdj {border-radius: 15px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);}
-    </style>
-""", unsafe_allow_html=True)
+    /* הפיכת אזור התוכן המרכזי ל"כרטיסייה" מרחפת */
+    .block-container {
+        background-color: white;
+        padding: 3rem;
+        border-radius: 12px;
+        box-shadow: 0 1px 3px rgba(60,64,67,0.3), 0 4px 8px rgba(60,64,67,0.15);
+        margin-top: 3rem;
+        margin-bottom: 3rem;
+        max-width: 800px;
+    }
 
-st.title("📸 שדרוג וניקוי תמונות אוטומטי")
-st.write(
-    "<p style='text-align: center; color: #555;'>העלה תמונה והמערכת תשפר את הניגודיות, תדגיש צבעים ותנקה רעשי רקע באופן אוטומטי.</p>",
-    unsafe_allow_html=True)
+    /* כותרות ושורות טקסט */
+    h1 {
+        color: #202124;
+        font-weight: 600;
+        text-align: center;
+        padding-bottom: 10px;
+    }
+    p {
+        color: #5f6368;
+        font-size: 16px;
+    }
 
+    /* עיצוב אזור גרירת הקבצים */
+    [data-testid="stFileUploadDropzone"] {
+        border: 2px dashed #dadce0 !important;
+        border-radius: 8px !important;
+        background-color: #f1f3f4 !important;
+        transition: all 0.3s ease;
+    }
+    [data-testid="stFileUploadDropzone"]:hover {
+        background-color: #e8f0fe !important;
+        border-color: #1a73e8 !important;
+    }
+
+    /* עיצוב התמונות שיוצגו עם פינות מעוגלות */
+    [data-testid="stImage"] img {
+        border-radius: 8px;
+        box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+    }
+</style>
+"""
+st.markdown(google_css, unsafe_allow_html=True)
+
+# ----- מכאן מתחיל התוכן של האתר -----
+
+st.title("Google Style Enhancer ✨")
+st.write("<p style='text-align: center;'>העלה תמונה והמערכת תשפר את הניגודיות, תדגיש צבעים ותנקה רעשי רקע.</p>",
+         unsafe_allow_html=True)
 st.markdown("---")
 
-uploaded_file = st.file_uploader("בחר תמונה לשיפור", type=['jpg', 'jpeg', 'png'])
+uploaded_file = st.file_uploader("גרור תמונה לכאן או לחץ לבחירה", type=['jpg', 'jpeg', 'png'])
 
-if uploaded_file is not None:
-    # קריאת התמונה
-    image = Image.open(uploaded_file)
-    img_array = np.array(image)
-    img_bgr = cv2.cvtColor(img_array, cv2.COLOR_RGB2BGR)
-
-    with st.spinner('מבצע קסמים על התמונה... ⏳'):
-        # 1. שלב האופטימיזציה (CLAHE) לשיפור ניגודיות
-        lab = cv2.cvtColor(img_bgr, cv2.COLOR_BGR2LAB)
-        l, a, b = cv2.split(lab)
-        clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8, 8))
-        cl = clahe.apply(l)
-        limg = cv2.merge((cl, a, b))
-        optimized_bgr = cv2.cvtColor(limg, cv2.COLOR_LAB2BGR)
-
-        # 2. שלב ניקוי הרעשים (בעוצמה עדינה של 5 במקום 10)
-        final_bgr = cv2.fastNlMeansDenoisingColored(optimized_bgr, None, 5, 5, 7, 21)
-
-        # המרה חזרה להצגה במסך
-        final_rgb = cv2.cvtColor(final_bgr, cv2.COLOR_BGR2RGB)
-
-    st.success("✨ התמונה שודרגה בהצלחה!")
-
-    # תצוגה זה לצד זה
-    col1, col2 = st.columns(2)
-    with col1:
-        st.markdown("<h3 style='text-align: center;'>המקור</h3>", unsafe_allow_html=True)
-        st.image(image, use_container_width=True)
-    with col2:
-        st.markdown("<h3 style='text-align: center;'>אחרי שיפור</h3>", unsafe_allow_html=True)
-        st.image(final_rgb, use_container_width=True)
+# ... (כאן נכנס אותו קוד פייתון של ה-OpenCV שהיה לנו מקודם) ...
